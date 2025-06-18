@@ -111,14 +111,15 @@ end
 --- Diplays a notification of the current job progress
 ---@param target number
 ---@param completed number
----@param anim? string
 ---
-function M.show_progress(target, completed, anim)
+function M.show_progress(target, completed)
+
+    local anim = require("sleepy.config").config.animation or "default"
     local animator = require("sleepy.ui.animator")
     local spinner = ""
     local message = "Done!"
 
-    if(not (completed == target)) then
+    if(completed ~= target) then
         local animation = animator.animations[anim] or nil
         spinner = animator.get_frame(animation)
         message = "Completed Requests: " .. completed .. "/" .. target

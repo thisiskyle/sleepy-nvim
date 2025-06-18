@@ -6,7 +6,7 @@
 
 ---@type Config
 local default = {
-    animation = "sleepy",
+    animation = "default",
     custom_animations = {},
 }
 
