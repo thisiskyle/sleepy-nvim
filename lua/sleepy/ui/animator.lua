@@ -1,17 +1,17 @@
----@class Animation
----@field speed number
+---@class sleepy.Animation
+---@field delta_time_ms number
 ---@field frames string[]
 
-
----@class Animator
----@field animations Animation[]
----@field get_frame fun(animation: Animation): string
+---@class sleepy.Animator
+---@field animations sleepy.Animation[]
+---@field get_frame fun(animation: sleepy.Animation): string
 ---
 local M = {}
 
 M.animations = {
+    ---@type sleepy.Animation
     default = {
-        speed = 800,
+        delta_time_ms = 600,
         frames = {
             "( -_-)    |",
             "( -_-).   |",
@@ -21,18 +21,18 @@ M.animations = {
             "( -_-).   |",
         }
     },
-
 }
 
 
----@param animation? Animation
+---@param animation? sleepy.Animation
 ---@return string -- the frame to be displayed
 ---
 function M.get_frame(animation)
     if(not animation) then
         return ""
     end
-    return animation.frames[math.floor(vim.uv.hrtime() / (1e6 * animation.speed)) % #animation.frames + 1]
+    local frame_index = math.floor((vim.uv.hrtime() / 1e6) / animation.delta_time_ms) % #animation.frames + 1
+    return animation.frames[frame_index]
 end
 
 

@@ -78,7 +78,7 @@ end
 
 --- Displays each Response in a new buffer
 --- and runs the after() function if there is one
----@param responses Response[]
+---@param responses sleepy.Response[]
 ---
 function M.show(responses)
     for _,r in pairs(responses) do
@@ -139,11 +139,14 @@ end
 
 --- Creates a dummy notification that displays all the animations
 --- this probably only works because I am using snacks notifier
+---@param count number
+---
 function M.test_animations(count)
     if(count <= 0) then
         return
     end
 
+    ---@type sleepy.Animator
     local animator = require("sleepy.ui.animator")
     local message = ""
 
