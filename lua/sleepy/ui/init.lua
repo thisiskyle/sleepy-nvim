@@ -114,7 +114,7 @@ end
 ---
 function M.show_progress(target, completed)
 
-    local anim = require("sleepy.config").config.animation or "default"
+    local anim = require("sleepy.config").options.animation or "default"
     local animator = require("sleepy.ui.animator")
     local spinner = ""
     local message = "Done!"

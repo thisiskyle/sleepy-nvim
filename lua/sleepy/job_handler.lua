@@ -88,7 +88,7 @@ end
 ---
 function M.async(jobs, on_complete)
 
-    local config = require("sleepy.config").config
+    local config = require("sleepy.config")
 
     for _,j in ipairs(jobs) do
 
@@ -140,7 +140,7 @@ function M.async(jobs, on_complete)
             name = j.name or "sleepy",
             data = nil,
             error = nil,
-            after = j.after or config.global_after or nil,
+            after = j.after or config.options.global_after or nil,
             test = j.test or nil,
             test_results = nil
         }
