@@ -13,12 +13,12 @@ M.animations = {
     default = {
         delta_time_ms = 600,
         frames = {
-            "( -_-)    |",
-            "( -_-).   |",
-            "( -_-).z  |",
-            "( -_-).zZ |",
-            "( -_-).z  |",
-            "( -_-).   |",
+            "zzz",
+            "Zzz",
+            "ZZz",
+            "ZZZ",
+            "zZZ",
+            "zzZ",
         }
     },
 }

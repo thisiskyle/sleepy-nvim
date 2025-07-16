@@ -47,8 +47,10 @@ function M.parse_output(data)
         end
     end
 
+    -- there is no json found
     if(split_idx == 0) then
-        return { data }
+        split_data.payload = data
+        return split_data
     end
 
     for i = 1, split_idx - 1, 1 do
@@ -61,9 +63,6 @@ function M.parse_output(data)
 
     return split_data
 end
-
-
-
 
 
 --- todo: unused
