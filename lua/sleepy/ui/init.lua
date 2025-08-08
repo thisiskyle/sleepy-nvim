@@ -15,7 +15,6 @@ local function format_test_results(results)
 end
 
 
-
 --- starts at given id and finds and increments until it finds 
 --- an available base + id for a buffer
 ---@param base string
@@ -36,7 +35,6 @@ local function find_buf_name(base, id)
 end
 
 
-
 --- Writes data to a buffer
 ---@param bufn number
 ---@param data string[]
@@ -48,8 +46,6 @@ local function write(bufn, data)
     vim.api.nvim_buf_set_lines(bufn, 0, -1, false, data)
 end
 
-
-
 --- Insert at top of buffer
 ---@param bufn number
 ---@param data string[]
@@ -57,8 +53,6 @@ end
 local function insert_at_top(bufn, data)
     vim.api.nvim_buf_set_lines(bufn, 0, 0, false, data)
 end
-
-
 
 --- Creates a buffer
 ---@param name string
@@ -73,8 +67,6 @@ local function create(name)
     vim.opt_local.swapfile = false
     return vim.api.nvim_get_current_buf()
 end
-
-
 
 --- Displays each Response in a new buffer
 --- and runs the after() function if there is one
@@ -107,7 +99,6 @@ function M.show(responses)
     end
 end
 
-
 --- Diplays a notification of the current job progress
 ---@param target number
 ---@param completed number
@@ -117,25 +108,23 @@ function M.show_progress(target, completed)
     local anim = require("sleepy.config").options.animation or "default"
     local animator = require("sleepy.ui.animator")
     local spinner = ""
-    local message = "Done!"
+    local message = "Wake up!"
 
     if(completed ~= target) then
         local animation = animator.animations[anim] or nil
         spinner = animator.get_frame(animation)
-        message = "Completed Requests: " .. completed .. "/" .. target
+        message = "RESTing... " .. completed .. "/" .. target
     end
 
     vim.notify(message, "info", {
         id = "sleepy_progress",
-        title = "Sleepy Progress",
+        title = "Sleepy",
         opts = function(notif)
             notif.icon = spinner
         end
     })
 
 end
-
-
 
 --- Creates a dummy notification that displays all the animations
 --- this probably only works because I am using snacks notifier

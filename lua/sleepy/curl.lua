@@ -2,7 +2,7 @@
 ---@field urlencode? string
 ---@field raw? string
 ---@field text? string
----@field obj? table
+---@field json? table
 
 ---@class sleepy.HttpRequest table with the data needed to make an http request
 ---@field type string
@@ -22,6 +22,11 @@ local request_types = {
     post = { "-X", "POST" },
 }
 
+--- build a curl --data-urlencode string for a request
+--- and insert it into the provided table
+---@param cmd_table table
+---@param data string
+---
 local function data_urlencode(cmd_table, data)
     if(type(data) == "string") then
         table.insert(cmd_table, "--data-urlencode")
@@ -29,6 +34,11 @@ local function data_urlencode(cmd_table, data)
     end
 end
 
+--- build a curl --data-raw string for a request
+--- and insert it into the provided table
+---@param cmd_table table
+---@param data string
+---
 local function data_raw(cmd_table, data)
     if(type(data) == "string") then
         table.insert(cmd_table, "--data-raw")
@@ -36,14 +46,43 @@ local function data_raw(cmd_table, data)
     end
 end
 
+--- build a curl --data string for a request
+--- and insert it into the provided table
+---@param cmd_table table
+---@param data string
+---
 local function data_standard(cmd_table, data)
     if(type(data) == "string") then
         table.insert(cmd_table, "--data")
         table.insert(cmd_table, data)
+    end
+end
 
-    elseif(type(data) == "table") then
+--- encodes the provided data as json and adds it to the request table
+--- for now this just assumes you want json
+---@param cmd_table table
+---@param data table
+---
+local function data_json(cmd_table, data)
+    if(type(data) == "table") then
         table.insert(cmd_table, "--data")
         table.insert(cmd_table, vim.json.encode(data))
+    end
+end
+
+--- decide what to do with unlabeled data
+---@param cmd_table table
+---@param data any
+---
+local function data_naked(cmd_table, data)
+    if(type(data) == "table") then
+        data_json(cmd_table, data)
+        return
+    end
+
+    if(type(data) == "string") then
+        data_standard(cmd_table, data)
+        return
     end
 end
 
@@ -86,12 +125,12 @@ function M.build(request)
                 data_raw(curl_command, v.raw)
             elseif(v.text) then
                 data_standard(curl_command, v.text)
-            elseif(v.obj) then
-                data_standard(curl_command, v.obj)
+            elseif(v.json) then
+                data_json(curl_command, v.json)
             elseif(type == "get") then
                 data_urlencode(curl_command, v[1])
             else
-                data_standard(curl_command, v[1])
+                data_naked(curl_command, v[1])
             end
         end
     end

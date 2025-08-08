@@ -7,10 +7,10 @@ So I decided to create my own that fit my personal needs.
 
 I only wanted a few things: 
 
-- make an http request(s) 
+- make http requests 
 - display each response in its own buffer
 - flexible response formatting
-- allow for testing
+- allow for simple testing
 
 
 
@@ -21,7 +21,8 @@ You visually select the table, or multiple tables, and run `:Sleepy`
 
 NOTE: Selected text is wrapped in an array internally. So to run multiple jobs
 they should be separated by a comma, but do not need to be wrapped in curly
-brackets.
+brackets. This makes it easier to select one or multiple requests without making
+things too complex.
 
 
 #### Job template
@@ -54,17 +55,29 @@ brackets.
         ---@type sleepy.RequestData[]
         data = {
 
-            --- (optional) labeling with urlencode will force '---data-urlencode' prefix before the string
+            --- (optional) labeling with urlencode will add '---data-urlencode' prefix before the data
             ---@type sleepy.RequestData
             { urlencode = "" }, 
 
-            --- (optional) labeling with raw will force '---data' prefix before the string
+            --- (optional) labeling with raw will add '---data-raw' prefix before the data
             ---@type sleepy.RequestData
             { raw = "" },
 
-            --- (optional) no label will use the request to decide which prefix to use 
+            --- (optional) labeling with text will add '---data' prefix before the data
+            ---@type sleepy.RequestData
+            { text = "" },
+
+            --- (optional) converts the table to json and will add '---data' prefix before the data
+            ---@type sleepy.RequestData
+            { json = { } },
+
+            --- (optional) no label will use the data type and request type to decide which prefix to use 
             ---@type sleepy.RequestData
             { "" }
+
+            --- (optional) no label will use the data type and request type to decide which prefix to use 
+            ---@type sleepy.RequestData
+            { { } }
         },
 
         --- (optional) array of additional curl arguments as strings
@@ -76,7 +89,7 @@ brackets.
     ---@type fun(data: sleepy.ResponseData)
     after = nil
 
-    --- (optional) for running tests against the reponse data
+    --- (optional) runs last, runs tests against the reponse data
     ---@type fun(data: sleepy.ResponseData): sleepy.TestResult[]
     test = nil
 },
@@ -85,7 +98,7 @@ brackets.
 
 ### Examples
 
-GET requests:
+GET Examples:
 
 ```lua
 
@@ -94,8 +107,8 @@ GET requests:
     request = { 
         type = "GET", 
         url = "https://pokeapi.co/api/v2/pokemon/pikachu", 
-    },
-},
+    }
+}, --- this comma is important when selecting multiple jobs
 
 { 
     name = "ditto", 
@@ -132,6 +145,77 @@ GET requests:
             }
         }
     end
+},
+
+
+{ 
+    name = "another get example",
+    request = {
+        type = "GET", 
+        url = "https://mockapi.com/api",
+        headers = {
+            "apikey:12345" 
+        },
+        data = {
+            { urlencode = "lean=1" }, -- forced --data-urlencode
+            { "param1=\"something\"" }, -- implied --data-urlencode from GET request type
+            { "param2=\"something else\"" }, -- implied --data-urlencode from GET request type
+        },
+    },
+},
+
+```
+
+
+POST Examples:
+
+```lua
+
+{ 
+    name = "post example",
+    request = {
+        type = "POST", 
+        url = "http://localhost:8080",
+        headers = {
+            "Content-Type: application/json"
+        },
+        data = {
+            {
+                json = { -- force lua table to be json encoded
+                    Name = "mock lua table",
+                    Description = "this will be converted to json",
+                    Variables = {
+                        { Name = "One", Value = 1 }
+                        { Name = "Two", Value = 2 }
+                        { Name = "Three", Value = 3 }
+                    }
+                }
+            },
+        },
+    },
+},
+
+
+{ 
+    name = "another post example",
+    request = {
+        type = "POST", 
+        url = "http://localhost:8080",
+        headers = {
+            "Content-Type: application/json"
+        },
+        data = {
+            { -- this string will be used as a standard --data body
+                [[
+{
+    "Name": "lua multiline json string",
+    "Description": "multiline strings work too",
+    "Note": "indentation will be included, thats why the wierd formatting"
+}
+                ]]
+            },
+        },
+    },
 },
 
 ```
