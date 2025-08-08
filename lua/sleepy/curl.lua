@@ -27,7 +27,7 @@ local request_types = {
 ---@param cmd_table table
 ---@param data string
 ---
-local function data_urlencode(cmd_table, data)
+local function urlencode_data(cmd_table, data)
     if(type(data) == "string") then
         table.insert(cmd_table, "--data-urlencode")
         table.insert(cmd_table, data)
@@ -39,7 +39,7 @@ end
 ---@param cmd_table table
 ---@param data string
 ---
-local function data_raw(cmd_table, data)
+local function raw_data(cmd_table, data)
     if(type(data) == "string") then
         table.insert(cmd_table, "--data-raw")
         table.insert(cmd_table, data)
@@ -51,7 +51,7 @@ end
 ---@param cmd_table table
 ---@param data string
 ---
-local function data_standard(cmd_table, data)
+local function standard_data(cmd_table, data)
     if(type(data) == "string") then
         table.insert(cmd_table, "--data")
         table.insert(cmd_table, data)
@@ -63,7 +63,7 @@ end
 ---@param cmd_table table
 ---@param data table
 ---
-local function data_json(cmd_table, data)
+local function json_data(cmd_table, data)
     if(type(data) == "table") then
         table.insert(cmd_table, "--data")
         table.insert(cmd_table, vim.json.encode(data))
@@ -74,14 +74,14 @@ end
 ---@param cmd_table table
 ---@param data any
 ---
-local function data_naked(cmd_table, data)
+local function naked_data(cmd_table, data)
     if(type(data) == "table") then
-        data_json(cmd_table, data)
+        json_data(cmd_table, data)
         return
     end
 
     if(type(data) == "string") then
-        data_standard(cmd_table, data)
+        standard_data(cmd_table, data)
         return
     end
 end
@@ -120,17 +120,17 @@ function M.build(request)
     if(request.data) then
         for _,v in ipairs(request.data) do
             if(v.urlencode) then
-                data_urlencode(curl_command, v.urlencode)
+                urlencode_data(curl_command, v.urlencode)
             elseif(v.raw) then
-                data_raw(curl_command, v.raw)
+                raw_data(curl_command, v.raw)
             elseif(v.text) then
-                data_standard(curl_command, v.text)
+                standard_data(curl_command, v.text)
             elseif(v.json) then
-                data_json(curl_command, v.json)
+                json_data(curl_command, v.json)
             elseif(type == "get") then
-                data_urlencode(curl_command, v[1])
+                urlencode_data(curl_command, v[1])
             else
-                data_naked(curl_command, v[1])
+                naked_data(curl_command, v[1])
             end
         end
     end
