@@ -10,6 +10,12 @@ local M = {}
 
 M.animations = {
     ---@type sleepy.Animation
+    none = {
+        delta_time_ms = 600,
+        frames = { "" }
+    },
+
+    ---@type sleepy.Animation
     default = {
         delta_time_ms = 600,
         frames = {

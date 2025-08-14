@@ -29,6 +29,7 @@ local running = {}
 local complete = {}
 
 --- Get the progress counts and pass it along to the UI
+---
 local function show_progress()
 
     if(next(running) == nil) then

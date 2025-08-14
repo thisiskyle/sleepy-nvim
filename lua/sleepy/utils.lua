@@ -16,6 +16,10 @@ function M.get_visual_selection()
     return table.concat(lines, '\n')
 end
 
+
+--- Remove line endings from the provided data
+--- @return any
+---
 function M.remove_line_endings(data)
     local output = {}
     for _,v in ipairs(data) do
@@ -101,7 +105,6 @@ end
 
 --- Get the visual selection block and inject it into a temp file
 --- this temp file will be loaded as lua with dofile
----
 ---@return Job[]?
 ---
 function M.get_visual_selection_as_lua()

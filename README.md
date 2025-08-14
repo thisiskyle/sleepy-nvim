@@ -1,20 +1,14 @@
 # Sleepy - REST API Client
 
-### About
+## About
 
 Basic REST API client. I found similar plugins (while awesome) had more features than I needed.
-So I decided to create my own that fit my personal needs.
-
-I only wanted a few things: 
-
-- make http requests 
-- display each response in its own buffer
-- flexible response formatting
-- allow for simple testing
+So I decided to create my own that fit my personal needs. I only wanted a few things, so feature wise
+it is pretty minimal. If you want something more feature complete check out [kulala.nvim](kulala).
 
 
 
-### Usage
+## Usage
 
 Sleepy uses lua tables as the construct for holding job details. 
 You visually select the table, or multiple tables, and run `:Sleepy` 
@@ -24,8 +18,34 @@ they should be separated by a comma, but do not need to be wrapped in curly
 brackets. This makes it easier to select one or multiple requests without making
 things too complex.
 
+### Installation
 
-#### Job template
+Use your favorite package manager
+
+Lazy:
+
+```lua
+{
+    "thisiskyle/sleepy-nvim",
+    opts = {},
+}
+```
+
+### Configuration
+
+```lua
+{
+    -- (optional) this function will be run after the response data is added to the new buffer
+    -- useful for formatting the response
+    -- NOTE: this will be overidden by sleepy.Job.after if one is set
+    --@type fun()?
+    global_after = function() end,
+
+},
+```
+
+
+### Job Template
 
 ```lua
 
@@ -98,7 +118,7 @@ things too complex.
 
 ### Examples
 
-GET Examples:
+GET Requests:
 
 ```lua
 
@@ -126,26 +146,34 @@ GET Examples:
         vim.cmd(":%!jq") -- format the json response, requires jq
     end,
     test = function(data) 
+        -- import sleepy.assert for some test helper functions
         local assert = require("sleepy.assert")
         return {
             {
-                name = "",
                 -- assumes data is json, follows a path and checks the key's value
+                name = "",
                 result = assert.json_path_value(data, { "abilities", 1, "ability", "name" }, "limber")
             },
             {
-                name = "has a name key",
                 -- assumes data is json, follows a path and checks if a key exists
+                name = "has a name key",
                 result = assert.json_has_key(data, { "abilities", 1, "ability", "name" })
             },
             { 
-                name = "name is ditto",
                 -- searches the data for a string
+                name = "name is ditto",
                 result = assert.data_contains(data, 'name.*ditto') 
+            },
+            { 
+                -- you can use your own function if assert does fit your needs
+                name = "always true",
+                result = (function()
+                    return true
+                end)()
             }
         }
     end
-},
+}, --- this comma is important when selecting multiple jobs
 
 
 { 
@@ -167,7 +195,7 @@ GET Examples:
 ```
 
 
-POST Examples:
+POST Requests:
 
 ```lua
 
@@ -220,7 +248,5 @@ POST Examples:
 
 ```
 
-### Using assert
+[kulala]:  <https://github.com/mistweaverco/kulala.nvim>
 
-
-todo

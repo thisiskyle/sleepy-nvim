@@ -68,6 +68,7 @@ local function create(name)
     return vim.api.nvim_get_current_buf()
 end
 
+
 --- Displays each Response in a new buffer
 --- and runs the after() function if there is one
 ---@param responses sleepy.Response[]
@@ -105,15 +106,12 @@ end
 ---
 function M.show_progress(target, completed)
 
-    local anim = require("sleepy.config").options.animation or "default"
     local animator = require("sleepy.ui.animator")
     local spinner = ""
-    local message = "Wake up!"
+    local message =  completed .. "/" .. target
 
-    if(completed ~= target) then
-        local animation = animator.animations[anim] or nil
-        spinner = animator.get_frame(animation)
-        message = "RESTing... " .. completed .. "/" .. target
+    if(completed < target) then
+        spinner = animator.get_frame(animator.animations["default"])
     end
 
     vim.notify(message, "info", {
@@ -130,7 +128,7 @@ end
 --- this probably only works because I am using snacks notifier
 ---@param count number
 ---
-function M.test_animations(count)
+function M.animation_test(count)
     if(count <= 0) then
         return
     end
@@ -149,8 +147,22 @@ function M.test_animations(count)
     })
 
     count = count - 1
-
     vim.defer_fn(function() M.test_animations(count) end, 50)
+end
+
+
+--- Creates a dummy notification that displays test progress
+---@param count number
+---
+function M.progress_test(count)
+    if(count <= 0) then
+        return
+    end
+    local t = math.floor(500 / 100) - 1
+    local c = math.floor((500 - count) / 100)
+    M.show_progress(t, c)
+    count = count - 1
+    vim.defer_fn(function() M.progress_test(count) end, 50)
 end
 
 return M
