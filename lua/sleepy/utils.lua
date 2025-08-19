@@ -1,5 +1,33 @@
 local M = {}
 
+function M.insert_template()
+    local template = [[
+
+{ 
+    name = "", 
+    request = {
+        type = "",
+        url = "",
+        headers = { },
+        data = { },
+        additional_args = { },
+    },
+    after = nil,
+    test = nil
+},
+
+        ]]
+
+    vim.fn.setreg('m', template)
+    vim.api.nvim_feedkeys('"mpjjf"', 'n', true)
+
+end
+
+
+
+
+
+
 --- Get the currently selected text from the buffer
 ---
 function M.get_visual_selection()

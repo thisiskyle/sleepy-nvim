@@ -7,3 +7,11 @@ vim.api.nvim_create_user_command(
         range = true
     }
 )
+
+vim.api.nvim_create_user_command(
+    'SleepyTemplate',
+    function()
+        require("sleepy.utils").insert_template()
+    end,
+    { }
+)
