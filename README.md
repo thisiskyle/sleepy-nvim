@@ -34,9 +34,9 @@ Lazy:
 ### Configuration
 
 ```lua
-{
-    -- (optional) this function will be run after the response data is added to the new buffer
-    -- useful for formatting the response
+opts = {
+
+    -- (optional) this function will be run after the response data is added to the new buffer useful for formatting the response
     -- NOTE: this will be overidden by sleepy.Job.after if one is set
     --@type fun()?
     global_after = function() end,
@@ -55,63 +55,58 @@ Lazy:
     ---@type string
     name = "", 
 
-    --- (required) request details 
-    ---@type sleepy.HttpRequest
-    request = {
+    --- (required) request type  [ "GET", "POST" ]
+    ---@type string
+    type = "",
 
-        --- (required) request type  [ "GET", "POST" ]
-        ---@type string
-        type = "",
+    --- (required) request url
+    ---@type string
+    url = "",
 
-        --- (required) request url
-        ---@type string
-        url = "",
+    --- (optional) array of header strings
+    ---@type string[]
+    headers = { },
 
-        --- (optional) array of header strings
-        ---@type string[]
-        headers = { },
+    --- (optional) request body / url params
+    ---@type sleepy.RequestData[]
+    data = {
 
-        --- (optional) request body
-        ---@type sleepy.RequestData[]
-        data = {
+        --- (optional) add '---data-urlencode' prefix before the data
+        ---@type sleepy.RequestData
+        { urlencode = "" }, 
 
-            --- (optional) labeling with urlencode will add '---data-urlencode' prefix before the data
-            ---@type sleepy.RequestData
-            { urlencode = "" }, 
+        --- (optional) add '---data-raw' prefix before the data
+        ---@type sleepy.RequestData
+        { raw = "" },
 
-            --- (optional) labeling with raw will add '---data-raw' prefix before the data
-            ---@type sleepy.RequestData
-            { raw = "" },
+        --- (optional) encodes the table as json and will add '---data' prefix before the data
+        ---@type sleepy.RequestData
+        { json_encode = { } },
 
-            --- (optional) labeling with text will add '---data' prefix before the data
-            ---@type sleepy.RequestData
-            { text = "" },
+        --- (optional) use the data type and request type to decide which prefix to use 
+        --- on a GET request, this will be sent as '---data-urlencoded'
+        --- on a POST request, this will be treated as standard '---data'
+        ---@type sleepy.RequestData
+        { "" },
 
-            --- (optional) converts the table to json and will add '---data' prefix before the data
-            ---@type sleepy.RequestData
-            { json = { } },
-
-            --- (optional) no label will use the data type and request type to decide which prefix to use 
-            ---@type sleepy.RequestData
-            { "" }
-
-            --- (optional) no label will use the data type and request type to decide which prefix to use 
-            ---@type sleepy.RequestData
-            { { } }
-        },
-
-        --- (optional) array of additional curl arguments as strings
-        ---@type string[]
-        additional_args = { }
+        --- (optional) use the data type and request type to decide which prefix to use 
+        --- on a GET request, this table be ignored
+        --- on a POST request, this table will be encoded as json and sent as '---data'
+        ---@type sleepy.RequestData
+        { { } },
     },
+
+    --- (optional) array of additional curl arguments as strings
+    ---@type string[]
+    additional_args = { },
 
     --- (optional) runs after the response is loaded into the buffer, used for formatting
     ---@type fun(data: sleepy.ResponseData)
-    after = nil
+    after = nil,
 
     --- (optional) runs last, runs tests against the reponse data
     ---@type fun(data: sleepy.ResponseData): sleepy.TestResult[]
-    test = nil
+    test = nil,
 },
 
 ```
@@ -124,23 +119,19 @@ GET Requests:
 
 { 
     name = "pikachu", 
-    request = { 
-        type = "GET", 
-        url = "https://pokeapi.co/api/v2/pokemon/pikachu", 
-    }
+    type = "GET", 
+    url = "https://pokeapi.co/api/v2/pokemon/pikachu", 
 }, --- this comma is important when selecting multiple jobs
 
 { 
     name = "ditto", 
-    request = { 
-        type = "GET", 
-        url = "https://pokeapi.co/api/v2/pokemon/ditto", 
-        headers = { 
-            "apikey:1234567890"
-        }, 
-        additional_args = {  
-            "-i"
-        },
+    type = "GET", 
+    url = "https://pokeapi.co/api/v2/pokemon/ditto", 
+    headers = { 
+        "apikey:1234567890"
+    }, 
+    additional_args = {  
+        "-i"
     },
     after = function(data) 
         vim.cmd(":%!jq") -- format the json response, requires jq
@@ -150,14 +141,14 @@ GET Requests:
         local assert = require("sleepy.assert")
         return {
             {
-                -- assumes data is json, follows a path and checks the key's value
+                -- assumes response data is json, follows a path and checks the key's value
                 name = "",
-                result = assert.json_path_value(data, { "abilities", 1, "ability", "name" }, "limber")
+                result = assert.json_path_equals(data, { "abilities", 1, "ability", "name" }, "limber")
             },
             {
-                -- assumes data is json, follows a path and checks if a key exists
+                -- assumes response data is json, follows a path and checks if a key exists
                 name = "has a name key",
-                result = assert.json_has_key(data, { "abilities", 1, "ability", "name" })
+                result = assert.json_path_exists(data, { "abilities", 1, "ability", "name" })
             },
             { 
                 -- searches the data for a string
@@ -178,17 +169,15 @@ GET Requests:
 
 { 
     name = "another get example",
-    request = {
-        type = "GET", 
-        url = "https://mockapi.com/api",
-        headers = {
-            "apikey:12345" 
-        },
-        data = {
-            { urlencode = "lean=1" }, -- forced --data-urlencode
-            { "param1=\"something\"" }, -- implied --data-urlencode from GET request type
-            { "param2=\"something else\"" }, -- implied --data-urlencode from GET request type
-        },
+    type = "GET", 
+    url = "https://mockapi.com/api",
+    headers = {
+        "apikey:12345" 
+    },
+    data = {
+        { urlencode = "lean=1" }, -- forced --data-urlencode
+        { "param1=\"something\"" }, -- implied --data-urlencode from GET request type
+        { "param2=\"something else\"" }, -- implied --data-urlencode from GET request type
     },
 },
 
@@ -201,24 +190,22 @@ POST Requests:
 
 { 
     name = "post example",
-    request = {
-        type = "POST", 
-        url = "http://localhost:8080",
-        headers = {
-            "Content-Type: application/json"
-        },
-        data = {
-            {
-                json = { -- force lua table to be json encoded
-                    Name = "mock lua table",
-                    Description = "this will be converted to json",
-                    Variables = {
-                        { Name = "One", Value = 1 }
-                        { Name = "Two", Value = 2 }
-                        { Name = "Three", Value = 3 }
-                    }
+    type = "POST", 
+    url = "http://localhost:8080",
+    headers = {
+        "Content-Type: application/json"
+    },
+    data = {
+        {
+            json_encode = { -- force lua table to be json encoded
+                Name = "mock lua table",
+                Description = "this will be converted to json",
+                Variables = {
+                    { Name = "One", Value = 1 }
+                    { Name = "Two", Value = 2 }
+                    { Name = "Three", Value = 3 }
                 }
-            },
+            }
         },
     },
 },
@@ -226,22 +213,20 @@ POST Requests:
 
 { 
     name = "another post example",
-    request = {
-        type = "POST", 
-        url = "http://localhost:8080",
-        headers = {
-            "Content-Type: application/json"
-        },
-        data = {
-            { -- this string will be used as a standard --data body
-                [[
+    type = "POST", 
+    url = "http://localhost:8080",
+    headers = {
+        "Content-Type: application/json"
+    },
+    data = {
+        { -- this string will be used as a standard --data body
+            [[
 {
     "Name": "lua multiline json string",
     "Description": "multiline strings work too",
     "Note": "indentation will be included, thats why the wierd formatting"
 }
-                ]]
-            },
+            ]]
         },
     },
 },

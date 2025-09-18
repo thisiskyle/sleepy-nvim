@@ -2,13 +2,12 @@
 ---@field urlencode? string
 ---@field raw? string
 ---@field text? string
----@field json? table
+---@field json_encode? table
 
 ---@class sleepy.HttpRequest table with the data needed to make an http request
 ---@field type string
 ---@field url string
 ---@field headers? string[]
----@field query? string[]
 ---@field additional_args? string[]
 ---@field data? sleepy.RequestData[]
 
@@ -32,6 +31,8 @@ local function urlencode_data(cmd_table, data)
         table.insert(cmd_table, "--data-urlencode")
         table.insert(cmd_table, data)
     end
+    -- todo: we should probably handle a non string
+    --       maybe return an error and skip this job
 end
 
 --- build a curl --data-raw string for a request
@@ -44,6 +45,8 @@ local function raw_data(cmd_table, data)
         table.insert(cmd_table, "--data-raw")
         table.insert(cmd_table, data)
     end
+    -- todo: we should probably handle a non string
+    --       maybe return an error and skip this job
 end
 
 --- build a curl --data string for a request
@@ -56,6 +59,8 @@ local function standard_data(cmd_table, data)
         table.insert(cmd_table, "--data")
         table.insert(cmd_table, data)
     end
+    -- todo: we should probably handle a non string
+    --       maybe return an error and skip this job
 end
 
 --- encodes the provided data as json and adds it to the request table
@@ -67,7 +72,10 @@ local function json_data(cmd_table, data)
     if(type(data) == "table") then
         table.insert(cmd_table, "--data")
         table.insert(cmd_table, vim.json.encode(data))
+        return
     end
+    -- todo: we should probably handle a non table
+    --       maybe return an error and skip this job
 end
 
 --- decide what to do with unlabeled data
@@ -123,10 +131,8 @@ function M.build(request)
                 urlencode_data(curl_command, v.urlencode)
             elseif(v.raw) then
                 raw_data(curl_command, v.raw)
-            elseif(v.text) then
-                standard_data(curl_command, v.text)
-            elseif(v.json) then
-                json_data(curl_command, v.json)
+            elseif(v.json_encode) then
+                json_data(curl_command, v.json_encode)
             elseif(type == "get") then
                 urlencode_data(curl_command, v[1])
             else

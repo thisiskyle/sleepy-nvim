@@ -4,7 +4,11 @@
 
 ---@class sleepy.Job simplified job data used for creating the actual request job
 ---@field name string
----@field request sleepy.HttpRequest
+---@field type string
+---@field url string
+---@field headers string[]
+---@field data table[]
+---@field additional_args? string[]
 ---@field command? string[]
 ---@field after? fun(data?: string[])
 ---@field test? fun(data?: string[])
@@ -64,7 +68,15 @@ function M.sync(jobs)
 
     for _,j in ipairs(jobs) do
 
-        local cmd = j.command or curl.build(j.request)
+        local request = {
+            type = j.type,
+            url = j.url,
+            headers = j.headers,
+            data = j.data,
+            additional_args = j.additional_args,
+        }
+
+        local cmd = j.command or curl.build(request)
 
         if(cmd == "" or cmd == nil) then
             vim.notify("Job command was empty", vim.log.levels.ERROR)
@@ -93,7 +105,15 @@ function M.async(jobs, on_complete)
 
     for _,j in ipairs(jobs) do
 
-        local cmd = j.command or curl.build(j.request)
+        local request = {
+            type = j.type,
+            url = j.url,
+            headers = j.headers,
+            data = j.data,
+            additional_args = j.additional_args,
+        }
+
+        local cmd = j.command or curl.build(request)
 
         if(cmd == "" or cmd == nil) then
             vim.notify("Job command was empty", vim.log.levels.ERROR)
