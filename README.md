@@ -2,25 +2,14 @@
 
 ## About
 
-Basic REST API client. I found similar plugins (while awesome) had more features than I needed.
-So I decided to create my own that fit my personal needs. I only wanted a few things, so feature wise
-it is pretty minimal. If you want something more feature complete check out [kulala.nvim](kulala).
+Another REST API client. I found similar plugins had more features than I needed. 
+So feature wise, Sleepy is pretty minimal.
 
+If you want something more feature complete check out [kulala.nvim](kulala).
 
+<br>
 
-## Usage
-
-Sleepy uses lua tables as the construct for holding job details. 
-You visually select the table, or multiple tables, and run `:Sleepy` 
-
-NOTE: Selected text is wrapped in an array internally. So to run multiple jobs
-they should be separated by a comma, but do not need to be wrapped in curly
-brackets. This makes it easier to select one or multiple requests without making
-things too complex.
-
-### Installation
-
-Use your favorite package manager
+## Installation
 
 Lazy:
 
@@ -31,7 +20,9 @@ Lazy:
 }
 ```
 
-### Configuration
+<br>
+
+## Configuration
 
 ```lua
 opts = {
@@ -43,6 +34,17 @@ opts = {
 
 },
 ```
+
+<br>
+
+## Usage
+
+Sleepy uses lua tables to build curl commands to make https requests. 
+To tell sleepy what tables to user, you visually select the table, or multiple tables, and run `:Sleepy` 
+
+Selected text is wrapped in an array internally. So to run multiple jobs
+they should be separated by a comma, but do not need to be wrapped in curly
+brackets. 
 
 
 ### Job Template
@@ -121,7 +123,7 @@ GET Requests:
     name = "pikachu", 
     type = "GET", 
     url = "https://pokeapi.co/api/v2/pokemon/pikachu", 
-}, --- this comma is important when selecting multiple jobs
+}, --- this comma is important for selecting multiple jobs
 
 { 
     name = "ditto", 
@@ -175,9 +177,9 @@ GET Requests:
         "apikey:12345" 
     },
     data = {
-        { urlencode = "lean=1" }, -- forced --data-urlencode
-        { "param1=\"something\"" }, -- implied --data-urlencode from GET request type
-        { "param2=\"something else\"" }, -- implied --data-urlencode from GET request type
+        { urlencode = "lean=1" }, -- data prefixed with --data-urlencode in curl command
+        { "param1=\"something\"" }, -- in a GET request, unlabeled string will be prefixed with --data-urlencode in curl command
+        { { } }, -- in a GET request, table will be ignored
     },
 },
 
@@ -197,8 +199,9 @@ POST Requests:
     },
     data = {
         {
-            json_encode = { -- force lua table to be json encoded
-                Name = "mock lua table",
+            -- lua table will be json encoded and prefixed by --data in the curl command
+            json_encode = {
+                Name = "lua table",
                 Description = "this will be converted to json",
                 Variables = {
                     { Name = "One", Value = 1 }
@@ -219,7 +222,8 @@ POST Requests:
         "Content-Type: application/json"
     },
     data = {
-        { -- this string will be used as a standard --data body
+        -- in a POST request, unlabled strings will be prefixed by --data in the curl command
+        { 
             [[
 {
     "Name": "lua multiline json string",
@@ -230,6 +234,34 @@ POST Requests:
         },
     },
 },
+
+{ 
+    name = "post example",
+    type = "POST", 
+    url = "http://localhost:8080",
+    headers = {
+        "Content-Type: application/json"
+    },
+    data = {
+        {
+            -- lua table will be json encoded and prefixed by --data in the curl command
+            {
+                Name = "lua table",
+                Description = "this will be converted to json",
+                Variables = {
+                    { Name = "One", Value = 1 }
+                    { Name = "Two", Value = 2 }
+                    { Name = "Three", Value = 3 }
+                }
+            }
+        },
+    },
+},
+
+ 
+
+
+
 
 ```
 
