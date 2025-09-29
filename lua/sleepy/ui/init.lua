@@ -1,3 +1,6 @@
+local utils = require("sleepy.utils")
+
+
 local M = {}
 
 
@@ -94,6 +97,12 @@ function M.show(responses)
             if(r.test_results) then
                 insert_at_top(bufn, format_test_results(r.test_results))
             end
+
+            if(r.show_cmd) then
+                local cmd = utils.get_curl_string(r.cmd)
+                insert_at_top(bufn, { cmd, " " })
+            end
+
             vim.cmd(":norm gg")
         end
 

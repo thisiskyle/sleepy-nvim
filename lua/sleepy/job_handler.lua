@@ -4,6 +4,7 @@
 
 ---@class sleepy.Job simplified job data used for creating the actual request job
 ---@field name string
+---@field show_cmd? string
 ---@field type string
 ---@field url string
 ---@field headers string[]
@@ -20,6 +21,8 @@
 ---@field after? fun(data?: string[])
 ---@field test? fun(data?: string[])
 ---@field test_results? table
+---@field cmd? string[]
+---@field show_cmd? boolean
 
 ---@class sleepy.TestResult 
 ---@field name string
@@ -156,9 +159,11 @@ function M.async(jobs, on_complete)
             }
         )
 
-        -- add the job to the running buffer
+        -- add the job to the running queue
         running[job_id] = {
             name = j.name or "sleepy",
+            show_cmd = j.show_cmd,
+            cmd = cmd,
             data = nil,
             error = nil,
             after = j.after or config.options.global_after or nil,

@@ -57,6 +57,11 @@ brackets.
     ---@type string
     name = "", 
 
+    --- (optional) show the curl command that is created from this job
+    --- in the results page
+    ---@type boolean
+    show_cmd = false, 
+
     --- (required) request type  [ "GET", "POST" ]
     ---@type string
     type = "",

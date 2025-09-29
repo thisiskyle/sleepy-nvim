@@ -24,6 +24,15 @@ function M.insert_template()
 end
 
 
+function M.get_curl_string(arr)
+    local cmd = ""
+    for _, v in ipairs(arr) do
+        cmd = cmd .. " " .. v
+    end
+    return cmd:gsub("^%s+","")
+end
+
+
 
 
 
