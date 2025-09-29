@@ -1,7 +1,17 @@
 vim.api.nvim_create_user_command(
     'Sleepy',
     function()
-        require("sleepy").use_selection()
+        require("sleepy").run_jobs()
+    end,
+    {
+        range = true
+    }
+)
+
+vim.api.nvim_create_user_command(
+    'SleepyShowCurlCommands',
+    function()
+        require("sleepy").show_commands()
     end,
     {
         range = true

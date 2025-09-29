@@ -72,6 +72,15 @@ local function create(name)
 end
 
 
+--- Displays each command string in a buffer
+---@param cmds string[]
+---
+function M.show_commands(cmds)
+    local bufn = create("curl commands")
+    write(bufn, cmds)
+end
+
+
 --- Displays each Response in a new buffer
 --- and runs the after() function if there is one
 ---@param responses sleepy.Response[]
