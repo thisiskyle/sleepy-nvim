@@ -49,6 +49,7 @@ local function write(bufn, data)
     vim.api.nvim_buf_set_lines(bufn, 0, -1, false, data)
 end
 
+
 --- Insert at top of buffer
 ---@param bufn number
 ---@param data string[]
@@ -56,6 +57,7 @@ end
 local function insert_at_top(bufn, data)
     vim.api.nvim_buf_set_lines(bufn, 0, 0, false, data)
 end
+
 
 --- Creates a buffer
 ---@param name string
@@ -77,7 +79,7 @@ end
 ---
 function M.show_commands(cmds)
     local bufn = create("curl commands")
-    write(bufn, cmds)
+    write(bufn, utils.remove_line_endings(cmds))
 end
 
 

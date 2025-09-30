@@ -120,7 +120,7 @@ function M.build(request)
 
     if(request.headers ~= nil) then
         for _,v in ipairs(request.headers) do
-            table.insert(curl_command, "-H")
+            table.insert(curl_command, "--header")
             table.insert(curl_command, v)
         end
     end

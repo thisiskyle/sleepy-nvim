@@ -26,8 +26,25 @@ end
 
 function M.get_curl_string(arr)
     local cmd = ""
+    local quoteFlag = false
     for _, v in ipairs(arr) do
-        cmd = cmd .. " " .. v
+        local d = v
+
+        if(quoteFlag) then
+            d = d:gsub('[\\$"]', "\\%0")
+            d = d:gsub("%s+", " ")
+            d = '"' .. d .. '"'
+            quoteFlag = false
+        else
+            local di,_ = string.find(d, "--data")
+            local hi,_ = string.find(d, "--header")
+            if(di or hi) then
+                quoteFlag = true
+            end
+        end
+
+        cmd = cmd .. ' ' .. d
+
     end
     return cmd:gsub("^%s+","")
 end
@@ -60,24 +77,22 @@ end
 function M.remove_line_endings(data)
     local output = {}
     for _,v in ipairs(data) do
-        local s,_ = string.gsub(v, '\r\n?', '')
+        local s = v:gsub('\r\n?', ''):gsub('\n', '')
         table.insert(output, s)
     end
     return output
 end
 
-
 --- This function is for parsing the output from curl.
 --- In some cases, curl will return more than just the request response.
 --- In these cases we want to be able to split the extra curl information
 --- from the actual response so we may run operations on them seperately
+---
 --- todo: For now, this only works when the response is json, because thats all I use it for
 ---@param data any
 ---@return table
 ---
 function M.parse_output(data)
-    -- todo: so this works for now, but only if the reponse
-    --       is json
 
     local split_idx = 0
     local split_data = { curl_header = {}, payload = {} }
