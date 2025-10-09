@@ -32,30 +32,41 @@
 local utils = require("sleepy.utils")
 local ui = require("sleepy.ui")
 local curl = require("sleepy.curl")
-local running = {}
-local complete = {}
+local active_jobs = {}
+local completed_jobs = {}
+local inprogress_jobs = {}
+
+--- clear the job lists
+---
+local function clear_jobs()
+    active_jobs = {}
+    completed_jobs = {}
+    inprogress_jobs = {}
+end
+
 
 --- Get the progress counts and pass it along to the UI
 ---
-local function show_progress()
-
-    if(next(running) == nil) then
-        ui.show_progress(1, 1)
-        return
-    end
-
+local function monitor_progress()
     local run = 0
     local done = 0
 
-    for _,_ in pairs(running) do
+    for _,_ in pairs(inprogress_jobs) do
         run = run + 1
     end
-    for _,_ in pairs(complete) do
+
+    for _,_ in pairs(completed_jobs) do
         done = done + 1
     end
 
     ui.show_progress(run + done, done)
-    vim.defer_fn(show_progress, 60)
+
+    if(run == 0) then
+        clear_jobs()
+        return
+    end
+
+    vim.defer_fn(monitor_progress, 60)
 end
 
 
@@ -82,7 +93,7 @@ function M.sync(jobs)
         local cmd = j.command or curl.build(request)
 
         if(cmd == "" or cmd == nil) then
-            vim.notify("Job command was empty", vim.log.levels.ERROR)
+            ui.notify("Job command was empty", vim.log.levels.ERROR)
             break
         end
 
@@ -94,6 +105,7 @@ function M.sync(jobs)
         })
 
     end
+
     return responses
 end
 
@@ -119,7 +131,7 @@ function M.async(jobs, on_complete)
         local cmd = j.command or curl.build(request)
 
         if(cmd == "" or cmd == nil) then
-            vim.notify("Job command was empty", vim.log.levels.ERROR)
+            ui.notify("Job command was empty", vim.log.levels.ERROR)
             break
         end
 
@@ -130,7 +142,7 @@ function M.async(jobs, on_complete)
                 stderr_buffered = true,
 
                 on_stdout = function(id, data, _)
-                    local resp = running[id]
+                    local resp = active_jobs[id]
 
                     local norm = utils.remove_line_endings(data)
                     resp.data = utils.parse_output(norm)
@@ -142,25 +154,22 @@ function M.async(jobs, on_complete)
 
                 on_stderr = function (id, data, _)
                     if(next(data) ~= nil and data[1] ~= "") then
-                        running[id].error = data
+                        active_jobs[id].error = data
                     end
                 end,
 
                 on_exit = function(id, _, _)
-                    complete[id] = running[id]
-                    running[id] = nil
+                    completed_jobs[id] = true
+                    inprogress_jobs[id] = nil
 
-                    if(next(running) == nil) then
-                        on_complete(complete)
-                        running = {}
-                        complete = {}
+                    if(next(inprogress_jobs) == nil) then
+                        on_complete(active_jobs)
                     end
                 end,
             }
         )
 
-        -- add the job to the running queue
-        running[job_id] = {
+        active_jobs[job_id] = {
             name = j.name or "sleepy",
             show_cmd = j.show_cmd,
             cmd = cmd,
@@ -171,14 +180,14 @@ function M.async(jobs, on_complete)
             test_results = nil
         }
 
+        inprogress_jobs[job_id] = true
+
     end
-    show_progress()
+    monitor_progress()
 end
 
-function M.clear_jobs()
-    running = {}
-end
 
+M.clear_jobs = clear_jobs
 
 
 return M

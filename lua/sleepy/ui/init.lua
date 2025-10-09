@@ -120,7 +120,15 @@ function M.show(responses)
     end
 end
 
---- Diplays a notification of the current job progress
+--- Displays a notification
+---@param message string
+---@param level string
+---
+function M.notify(message, level)
+    vim.notify(message, level, { title = "Sleepy", })
+end
+
+--- Displays a notification of the current job progress
 ---@param target number
 ---@param completed number
 ---
