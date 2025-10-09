@@ -175,4 +175,10 @@ function M.async(jobs, on_complete)
     show_progress()
 end
 
+function M.clear_jobs()
+    running = {}
+end
+
+
+
 return M

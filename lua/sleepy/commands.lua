@@ -3,9 +3,15 @@ vim.api.nvim_create_user_command(
     function()
         require("sleepy").run_jobs()
     end,
-    {
-        range = true
-    }
+    { range = true }
+)
+
+vim.api.nvim_create_user_command(
+    'SleepyClear',
+    function()
+        require("sleepy.job_handler").clear_jobs()
+    end,
+    {}
 )
 
 vim.api.nvim_create_user_command(
@@ -13,9 +19,7 @@ vim.api.nvim_create_user_command(
     function()
         require("sleepy").show_commands()
     end,
-    {
-        range = true
-    }
+    { range = true }
 )
 
 vim.api.nvim_create_user_command(
