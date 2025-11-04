@@ -14,10 +14,10 @@ function M.setup(opts)
 end
 
 
---- Entry point function for starting a job based on selected text
+--- Entry point function for running jobs from a provided list
+---@param jobs? sleepy.Job[]
 ---
-function M.run_jobs()
-    local jobs = require("sleepy.utils").get_visual_selection_as_lua()
+function M.run_jobs(jobs)
     if(jobs == nil) then
         vim.notify("Job list is nil", vim.log.levels.ERROR)
         return
@@ -27,6 +27,13 @@ function M.run_jobs()
     end)
 end
 
+
+--- Entry point function for starting a job based on visual selection
+---
+function M.run_highlighted_jobs()
+    local jobs = require("sleepy.utils").get_visual_selection_as_lua()
+    M.run_jobs(jobs)
+end
 
 
 function M.show_commands()

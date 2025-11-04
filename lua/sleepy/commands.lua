@@ -1,7 +1,7 @@
 vim.api.nvim_create_user_command(
     'Sleepy',
     function()
-        require("sleepy").run_jobs()
+        require("sleepy").run_highlighted_jobs()
     end,
     { range = true }
 )
