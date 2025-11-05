@@ -5,15 +5,14 @@ function M.insert_template()
 
 { 
     name = "", 
-    request = {
-        type = "",
-        url = "",
-        headers = { },
-        data = { },
-        additional_args = { },
-    },
+    type = "",
+    url = "",
+    headers = { },
+    data = { },
+    additional_args = { },
+    show_cmd = false
     after = nil,
-    test = nil
+    test = nil,
 },
 
         ]]

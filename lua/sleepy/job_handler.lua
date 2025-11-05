@@ -188,6 +188,39 @@ function M.async(jobs, on_complete)
 end
 
 
+function M.show_commands(jobs)
+    if(jobs == nil) then
+        vim.notify("Job list is nil", vim.log.levels.ERROR)
+        return
+    end
+
+    local lines = {}
+
+    for _,j in ipairs(jobs) do
+
+        local request = {
+            type = j.type,
+            url = j.url,
+            headers = j.headers,
+            data = j.data,
+            additional_args = j.additional_args,
+        }
+
+        if(j.command) then
+            table.insert(lines, j.command)
+        else
+            local cmd = curl.build(request)
+            local cmdStr = require("sleepy.utils").get_curl_string(cmd)
+            table.insert(lines, cmdStr)
+        end
+    end
+
+    require("sleepy.ui").show_commands(lines)
+end
+
+
+
+
 M.clear_jobs = clear_jobs
 
 

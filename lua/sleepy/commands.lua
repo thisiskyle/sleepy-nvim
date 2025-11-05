@@ -1,7 +1,8 @@
 vim.api.nvim_create_user_command(
     'Sleepy',
     function()
-        require("sleepy").run_highlighted_jobs()
+        local jobs = require("sleepy.utils").get_visual_selection_as_lua()
+        require("sleepy").run_jobs(jobs)
     end,
     { range = true }
 )
@@ -17,7 +18,26 @@ vim.api.nvim_create_user_command(
 vim.api.nvim_create_user_command(
     'SleepyRepeat',
     function()
-        require("sleepy").repeat_last()
+        local jobs = require("sleepy.history_manager").get_last()
+        require("sleepy").run_jobs(jobs)
+    end,
+    {}
+)
+
+vim.api.nvim_create_user_command(
+    'SleepyBookmarkSet',
+    function()
+        local jobs = require("sleepy.utils").get_visual_selection_as_lua()
+        require("sleepy.history_manager").set_bookmark(jobs)
+    end,
+    { range = true }
+)
+
+vim.api.nvim_create_user_command(
+    'SleepyBookmarkRun',
+    function()
+        local jobs = require("sleepy.history_manager").get_bookmark()
+        require("sleepy").run_jobs(jobs)
     end,
     {}
 )
@@ -25,7 +45,8 @@ vim.api.nvim_create_user_command(
 vim.api.nvim_create_user_command(
     'SleepyShowCurlCommands',
     function()
-        require("sleepy").show_commands()
+        local jobs = require("sleepy.utils").get_visual_selection_as_lua()
+        require("sleepy.job_handler").show_commands(jobs)
     end,
     { range = true }
 )
@@ -35,5 +56,5 @@ vim.api.nvim_create_user_command(
     function()
         require("sleepy.utils").insert_template()
     end,
-    { }
+    {}
 )
