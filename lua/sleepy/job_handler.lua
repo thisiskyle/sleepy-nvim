@@ -74,6 +74,7 @@ end
 local M = {}
 
 --- Uses vim.fn.system and curl to make a syncronous http request
+--- I am not sure if I will ever actually use this
 ---@param jobs sleepy.Job[]
 ---@return sleepy.Response[]
 ---

@@ -15,6 +15,14 @@ vim.api.nvim_create_user_command(
 )
 
 vim.api.nvim_create_user_command(
+    'SleepyRepeat',
+    function()
+        require("sleepy").repeat_last()
+    end,
+    {}
+)
+
+vim.api.nvim_create_user_command(
     'SleepyShowCurlCommands',
     function()
         require("sleepy").show_commands()

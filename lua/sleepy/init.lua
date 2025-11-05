@@ -18,6 +18,7 @@ end
 ---@param jobs? sleepy.Job[]
 ---
 function M.run_jobs(jobs)
+    require("sleepy.history_manager").archive(jobs)
     if(jobs == nil) then
         vim.notify("Job list is nil", vim.log.levels.ERROR)
         return
@@ -65,6 +66,12 @@ function M.show_commands()
     end
 
     require("sleepy.ui").show_commands(lines)
+end
+
+
+function M.repeat_last()
+    local jobs = require("sleepy.history_manager").get_last()
+    M.run_jobs(jobs)
 end
 
 
