@@ -5,7 +5,7 @@
 Another REST API client. I found similar plugins had more features than I needed. 
 So feature wise, Sleepy is pretty minimal.
 
-If you want something more feature complete check out [kulala.nvim](kulala).
+If you are looking for something more feature complete check out the awesome plugin [kulala.nvim](kulala).
 
 <br>
 
@@ -40,11 +40,27 @@ opts = {
 ## Usage
 
 Sleepy uses lua tables to build curl commands to make https requests. 
-To tell sleepy what tables to user, you visually select the table, or multiple tables, and run `:Sleepy` 
+To tell sleepy what tables to use you visually select the table, or multiple tables, and run `:Sleepy` 
+
+The response data, test results, and anything else returned from the http call with be shown in its own buffer.
 
 Selected text is wrapped in an array internally. So to run multiple jobs
 they should be separated by a comma, but do not need to be wrapped in curly
 brackets. 
+
+
+
+### Commands 
+
+|Command|Description|
+|-------|-----------|
+|Sleepy|Run the currently selected jobs|
+|SleepyRepeat|Repeat the last job that was run|
+|SleepyBookmark|Save the current visually selected jobs|
+|SleepyBookmarkRun|Run the currently bookmarked jobs|
+|SleepyShowCurl|Display the curl commands created by the current visually selected jobs (does not run anything)|
+|SleepyTemplate|Insert a job template at the cursor location|
+|SleepyClear|Clear any currently running and cached jobs|
 
 
 ### Job Template
@@ -58,7 +74,7 @@ brackets.
     name = "", 
 
     --- (optional) show the curl command that is created from this job
-    --- in the results page
+    --- in the results buffer
     ---@type boolean
     show_cmd = false, 
 
@@ -78,27 +94,27 @@ brackets.
     ---@type sleepy.RequestData[]
     data = {
 
-        --- (optional) add '---data-urlencode' prefix before the data
+        --- (optional) add '--data-urlencode' prefix before the data
         ---@type sleepy.RequestData
         { urlencode = "" }, 
 
-        --- (optional) add '---data-raw' prefix before the data
+        --- (optional) add '--data-raw' prefix before the data
         ---@type sleepy.RequestData
         { raw = "" },
 
-        --- (optional) encodes the table as json and will add '---data' prefix before the data
+        --- (optional) encodes the table as json and will add '--data' prefix before the data
         ---@type sleepy.RequestData
         { json_encode = { } },
 
         --- (optional) use the data type and request type to decide which prefix to use 
-        --- on a GET request, this will be sent as '---data-urlencoded'
-        --- on a POST request, this will be treated as standard '---data'
+        --- on a GET request, this will be sent as '--data-urlencoded'
+        --- on a POST request, this will be treated as standard '--data'
         ---@type sleepy.RequestData
         { "" },
 
         --- (optional) use the data type and request type to decide which prefix to use 
         --- on a GET request, this table be ignored
-        --- on a POST request, this table will be encoded as json and sent as '---data'
+        --- on a POST request, this table will be encoded as json and sent as '--data'
         ---@type sleepy.RequestData
         { { } },
     },
@@ -120,16 +136,20 @@ brackets.
 
 ### Examples
 
-GET Requests:
+
+#### GET Requests:
 
 ```lua
 
+-- basic GET request
 { 
     name = "pikachu", 
     type = "GET", 
     url = "https://pokeapi.co/api/v2/pokemon/pikachu", 
-}, --- this comma is important for selecting multiple jobs
+}, -- this comma is important for selecting multiple jobs
 
+
+-- more complex GET request with headers, additional args, formatting and test functions
 { 
     name = "ditto", 
     type = "GET", 
@@ -158,7 +178,7 @@ GET Requests:
                 result = assert.json_path_exists(data, { "abilities", 1, "ability", "name" })
             },
             { 
-                -- searches the data for a string
+                -- searches the data for a pattern
                 name = "name is ditto",
                 result = assert.data_contains(data, 'name.*ditto') 
             },
@@ -166,6 +186,7 @@ GET Requests:
                 -- you can use your own function if assert does fit your needs
                 name = "always true",
                 result = (function()
+                    -- test here....
                     return true
                 end)()
             }
@@ -174,6 +195,7 @@ GET Requests:
 }, --- this comma is important when selecting multiple jobs
 
 
+-- GET request with 
 { 
     name = "another get example",
     type = "GET", 
@@ -182,16 +204,31 @@ GET Requests:
         "apikey:12345" 
     },
     data = {
-        { urlencode = "lean=1" }, -- data prefixed with --data-urlencode in curl command
-        { "param1=\"something\"" }, -- in a GET request, unlabeled string will be prefixed with --data-urlencode in curl command
-        { { } }, -- in a GET request, table will be ignored
+        -- will be prefixed with --data-urlencode in curl command
+        { urlencode = "lean=1" }, 
+
+        -- in a GET request, unlabeled string will be prefixed with --data-urlencode in curl command
+        { "param1=\"something\"" }, 
+
+        -- in a GET request, a table will be ignored
+        { 
+            json_encode = {
+                Name = "table in a GET request",
+                Description = "this will be ignored",
+                Variables = {
+                    { Name = "One", Value = 1 }
+                    { Name = "Two", Value = 2 }
+                    { Name = "Three", Value = 3 }
+                }
+            }
+        },
     },
 },
 
 ```
 
 
-POST Requests:
+#### POST Requests
 
 ```lua
 
@@ -204,7 +241,7 @@ POST Requests:
     },
     data = {
         {
-            -- lua table will be json encoded and prefixed by --data in the curl command
+            -- a lua table will be json encoded and prefixed by --data in the curl command
             json_encode = {
                 Name = "lua table",
                 Description = "this will be converted to json",
@@ -263,12 +300,9 @@ POST Requests:
     },
 },
 
- 
-
-
-
-
 ```
+
+
 
 [kulala]:  <https://github.com/mistweaverco/kulala.nvim>
 

@@ -25,7 +25,7 @@ vim.api.nvim_create_user_command(
 )
 
 vim.api.nvim_create_user_command(
-    'SleepyBookmarkSet',
+    'SleepyBookmark',
     function()
         local jobs = require("sleepy.utils").get_visual_selection_as_lua()
         require("sleepy.history_manager").set_bookmark(jobs)
@@ -43,7 +43,7 @@ vim.api.nvim_create_user_command(
 )
 
 vim.api.nvim_create_user_command(
-    'SleepyShowCurlCommands',
+    'SleepyShowCurl',
     function()
         local jobs = require("sleepy.utils").get_visual_selection_as_lua()
         require("sleepy.job_handler").show_commands(jobs)

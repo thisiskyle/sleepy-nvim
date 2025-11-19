@@ -64,15 +64,15 @@ end
 
 --- Assumes string[] is provided, checks it for a specific sub string
 ---@param data string[]
----@param str string
+---@param pattern string
 ---@return boolean
 ---
-function M.data_contains(data, str)
+function M.data_contains(data, pattern)
     if(not data) then
         return false
     end
     for _,line in ipairs(data) do
-        if(string.find(line, str)) then
+        if(string.find(line, pattern)) then
             return true
         end
     end
